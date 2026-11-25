@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f6f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121611" media="(prefers-color-scheme: dark)">
+  <title>Basket</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" type="module"></script>
+</head>
+<body>
+  <div id="boot" class="boot" aria-live="polite">Loading…</div>
+
+  <!-- Log in -->
+  <main id="auth" class="auth" hidden>
+    <div class="auth-card">
+      <div class="brand">
+        <img src="icon.svg" alt="" width="40" height="40">
+        <div>
+          <h1>Basket</h1>
+          <p class="muted">Shop your Picnic groceries from any browser.</p>
+        </div>
+      </div>
+
+      <form id="login-form" class="stack" novalidate>
+        <label for="login-email">Picnic email</label>
+        <input id="login-email" type="email" autocomplete="username" required>
+        <label for="login-password">Picnic password</label>
+        <input id="login-password" type="password" autocomplete="current-password" required>
+        <p id="login-error" class="error" role="alert" hidden></p>
+        <button id="login-submit" class="btn btn-primary" type="submit">Log in</button>
+        <p class="fine">Your password goes straight to Picnic. Basket keeps only Picnic's login token, encrypted in a cookie in this browser.</p>
+      </form>
+
+      <form id="otp-form" class="stack" novalidate hidden>
+        <p>Picnic sent a code by SMS to the phone number on your account.</p>
+        <label for="otp-code">SMS code</label>
+        <input id="otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+        <p id="otp-error" class="error" role="alert" hidden></p>
+        <button id="otp-submit" class="btn btn-primary" type="submit">Confirm code</button>
+        <div class="row-between">
+          <button id="otp-resend" class="btn-link" type="button">Send a new code</button>
+          <button id="otp-cancel" class="btn-link" type="button">Use another account</button>
+        </div>
+        <p id="otp-info" class="fine" aria-live="polite"></p>
+      </form>
+    </div>
+    <p class="fine center">Basket is a personal tool. It is not made by or connected to Picnic.</p>
+  </main>
+
+  <!-- Shop -->
+  <div id="app" hidden>
+    <header class="top">
+      <div class="top-inner">
+        <div class="brand small">
+          <img src="icon.svg" alt="" width="28" height="28">
+          <span class="brand-name">Basket</span>
+        </div>
+        <div class="who">
+          <span id="who-name" class="muted"></span>
+          <button id="logout" class="btn btn-quiet" type="button">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="shop" aria-label="Find groceries">
+        <div class="tabs" role="tablist">
+          <button id="tab-search" class="tab" role="tab" aria-selected="true" aria-controls="panel-search" type="button">Search</button>
+          <button id="tab-list" class="tab" role="tab" aria-selected="false" aria-controls="panel-list" type="button">Shopping list</button>
+        </div>
+
+        <div id="panel-search" role="tabpanel" aria-labelledby="tab-search">
+          <form id="search-form" class="search" role="search">
+            <label for="search-input" class="sr-only">Search Picnic</label>
+            <input id="search-input" type="search" placeholder="Search Picnic, e.g. Milch, Bananen, Pasta" autocomplete="off" enterkeyhint="search">
+          </form>
+          <p id="search-status" class="muted status" aria-live="polite">Type what you need. Results come straight from Picnic.</p>
+          <div id="results" class="grid"></div>
+        </div>
+
+        <div id="panel-list" role="tabpanel" aria-labelledby="tab-list" hidden>
+          <form id="list-form" class="stack">
+            <label for="list-input">Write or paste your list, one item per line. Start a line with a number for more than one.</label>
+            <textarea id="list-input" rows="6" placeholder="2 Milch&#10;Bananen&#10;6 Eier&#10;Spaghetti"></textarea>
+            <div class="row-end">
+              <button id="list-find" class="btn btn-primary" type="submit">Find products</button>
+            </div>
+          </form>
+          <div id="list-rows" class="list-rows"></div>
+          <div id="list-actions" class="list-actions" hidden>
+            <p id="list-summary" class="muted"></p>
+            <button id="list-add" class="btn btn-primary" type="button">Add to Picnic cart</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section id="cart" class="panel" aria-labelledby="cart-title">
+          <div class="panel-head">
+            <h2 id="cart-title">Picnic cart</h2>
+            <span id="cart-count" class="pill">0 items</span>
+          </div>
+          <ul id="cart-items" class="cart-items"></ul>
+          <p id="cart-empty" class="muted">Your Picnic cart is empty. Add something from the search or your list.</p>
+          <div id="cart-foot" class="cart-foot" hidden>
+            <div class="total-row">
+              <span>Total</span>
+              <strong id="cart-total" class="num"></strong>
+            </div>
+            <p id="min-order" class="warn" hidden></p>
+            <button id="cart-clear" class="btn-link danger" type="button">Empty cart</button>
+          </div>
+        </section>
+
+        <section id="delivery" class="panel" aria-labelledby="delivery-title">
+          <div class="panel-head">
+            <h2 id="delivery-title">Delivery</h2>
+            <button id="slots-refresh" class="btn-link" type="button">Refresh</button>
+          </div>
+          <p id="slot-chosen" class="chosen" hidden></p>
+          <div id="slots" class="slots"><p class="muted">Loading delivery times…</p></div>
+        </section>
+
+        <section class="panel finish" aria-labelledby="finish-title">
+          <h2 id="finish-title">Pay in the Picnic app</h2>
+          <ol>
+            <li>Open the Picnic app on your phone.</li>
+            <li>Your cart and delivery time are already there.</li>
+            <li>Check the order and pay.</li>
+          </ol>
+          <p class="fine">Basket never places or pays for an order.</p>
+        </section>
+      </aside>
+    </main>
+
+    <a id="cartbar" class="cartbar" href="#cart">
+      <span id="cartbar-count">0 items</span>
+      <strong id="cartbar-total" class="num">€0,00</strong>
+      <span class="cartbar-go">View cart</span>
+    </a>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

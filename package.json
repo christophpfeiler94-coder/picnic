@@ -1,0 +1,14 @@
+{
+  "name": "picnic-basket",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shop your Picnic groceries from a web browser: search, fill your Picnic cart and pick a delivery time.",
+  "type": "module",
+  "engines": { "node": ">=18.17" },
+  "scripts": {
+    "start": "node server.js",
+    "mock": "node dev/mock-picnic.js",
+    "demo": "node dev/demo.js",
+    "test": "node --test test/*.test.js"
+  }
+}
