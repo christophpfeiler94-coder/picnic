@@ -13,6 +13,7 @@ const state = {
   cart: { items: [], count: 0, total: 0, selectedSlotId: null },
   slots: null,
   results: [],
+  googleEmail: null,
   query: '',
   list: [],
   pending: new Set(),
@@ -77,6 +78,10 @@ async function api(path, body) {
   }
   let data = {};
   try { data = await res.json(); } catch { /* empty */ }
+  if (res.status === 401 && data.code === 'GOOGLE') {
+    showAuth('google', data.error);
+    throw new LoggedOut(data.error);
+  }
   if (res.status === 401 && data.code === 'LOGGED_OUT' && !path.startsWith('login') && !path.startsWith('2fa')) {
     showAuth('login', data.error);
     throw new LoggedOut(data.error);
@@ -94,12 +99,32 @@ function showAuth(step, message) {
   $('boot').hidden = true;
   $('app').hidden = true;
   $('auth').hidden = false;
+  $('google-step').hidden = step !== 'google';
   $('login-form').hidden = step !== 'login';
   $('otp-form').hidden = step !== 'otp';
-  const err = step === 'login' ? $('login-error') : $('otp-error');
+  const err = $(`${step === 'login' ? 'login' : step === 'otp' ? 'otp' : 'google'}-error`);
   err.textContent = message || '';
   err.hidden = !message;
-  (step === 'login' ? $('login-email') : $('otp-code')).focus();
+  const who = $('google-who');
+  who.textContent = state.googleEmail ? `Signed in with Google as ${state.googleEmail}.` : '';
+  who.hidden = !state.googleEmail;
+  ({ login: $('login-email'), otp: $('otp-code'), google: $('google-signin') })[step].focus();
+}
+
+const AUTH_ERRORS = {
+  cancelled: 'Google sign-in was cancelled.',
+  expired: 'The sign-in took too long or was started in another tab. Try again.',
+  google: 'Google sign-in did not work. Try again.',
+  not_allowed: 'This Google account may not use Basket. Choose another account.',
+  setup: 'Google sign-in is not set up completely on the server (client secret or allowed emails missing).',
+};
+
+function takeAuthError() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('auth_error');
+  if (!code) return null;
+  history.replaceState(null, '', location.pathname);
+  return AUTH_ERRORS[code] || AUTH_ERRORS.google;
 }
 
 function showApp(user) {
@@ -115,9 +140,12 @@ function showApp(user) {
 }
 
 async function boot() {
+  const authError = takeAuthError();
   try {
     const s = await api('session');
-    if (s.loggedIn) showApp(s.user);
+    state.googleEmail = s.googleEmail || null;
+    if (s.google === 'required') showAuth('google', authError);
+    else if (s.loggedIn) showApp(s.user);
     else showAuth(s.pending2fa ? 'otp' : 'login');
   } catch (e) {
     if (e instanceof LoggedOut) return;
@@ -191,7 +219,7 @@ $('otp-resend').addEventListener('click', async () => {
 
 $('otp-cancel').addEventListener('click', async () => {
   try { await api('logout', {}); } catch { /* ignore */ }
-  showAuth('login');
+  boot();
 });
 
 $('logout').addEventListener('click', async () => {
@@ -199,7 +227,7 @@ $('logout').addEventListener('click', async () => {
   state.cart = { items: [], count: 0, total: 0, selectedSlotId: null };
   state.results = [];
   $('results').replaceChildren();
-  showAuth('login');
+  boot();
 });
 
 // ---------- tabs ----------

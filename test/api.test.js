@@ -39,7 +39,7 @@ async function call(path, body) {
 
 test('full shopping flow against the pretend Picnic', async () => {
   let r = await call('session');
-  assert.deepEqual(r.data, { loggedIn: false });
+  assert.deepEqual(r.data, { loggedIn: false, googleEmail: null });
 
   r = await call('cart');
   assert.equal(r.status, 401);
@@ -55,7 +55,7 @@ test('full shopping flow against the pretend Picnic', async () => {
   assert.match(r.setCookie[0], /HttpOnly; SameSite=Strict/);
 
   r = await call('session');
-  assert.deepEqual(r.data, { loggedIn: false, pending2fa: true });
+  assert.deepEqual(r.data, { loggedIn: false, pending2fa: true, googleEmail: null });
   r = await call('cart');
   assert.equal(r.status, 401, 'cart must stay locked until the SMS code is confirmed');
 

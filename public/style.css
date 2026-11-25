@@ -86,6 +86,8 @@ label { font-weight: 500; font-size: 0.9rem; color: var(--ink-warm); }
 .btn:disabled { opacity: 0.55; cursor: default; }
 .btn-primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
 .btn-primary:not(:disabled):hover { background: var(--brand-strong); border-color: var(--brand-strong); }
+.btn-google { background: #fff; color: #1f1f1f; border-color: #747775; font-weight: 500; text-decoration: none; gap: 10px; }
+.btn-google:hover { background: #f2f2f2; }
 .btn-quiet { background: transparent; color: inherit; border-color: currentColor; padding: 6px 14px; font-weight: 500; }
 .btn-quiet:hover { background: rgb(255 255 255 / 0.14); }
 .btn-link {
