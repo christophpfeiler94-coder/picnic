@@ -5,6 +5,7 @@ Shop your Picnic groceries from any browser on your phone or computer.
 - **Search** Picnic's products and add them straight to your real Picnic cart.
 - **Shopping list:** paste a list like `2 Milch`, `Bananen`, `6 Eier`, pick the right product for each line, and add them all at once.
 - **Delivery:** choose a delivery time. Basket shows Picnic's minimum order and the order deadline.
+- **Picnic look:** the colours, font and shapes follow picnic.app (red #e1171e, green #88a91e, warm beige panels, Roboto).
 - **Pay in the app:** open the Picnic app, where your cart and delivery time are already set, and pay there. Basket never places or pays for an order.
 
 > Basket is a personal tool. It is not made by, supported by or connected to Picnic. It uses the same private API as the Picnic app. The routes come from open-source projects such as python-picnic-api2 and the Home Assistant Picnic integration. Picnic can change this API at any time, and Basket may then stop working until it is updated.

@@ -343,7 +343,7 @@ $('search-form').addEventListener('submit', (ev) => {
 function renderResults() {
   $('results').replaceChildren(...state.results.map((p) => {
     const qty = qtyOf(p.id);
-    return h('article', { class: 'card' },
+    return h('article', { class: qty > 0 ? 'card in-cart' : 'card' },
       thumb(p.image, p.name),
       h('div', { class: 'card-name', text: p.name, title: p.name }),
       h('div', { class: 'card-meta' },
